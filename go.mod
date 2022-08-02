@@ -1,4 +1,4 @@
-module spacer
+module github.com/frozosea/spacer
 
 go 1.18
 
