@@ -57,17 +57,16 @@ func Dump(dbConf *DataBaseConfig, s3conf *S3StorageConfig) {
 	defer cancel()
 
 	if err := postgres.Dump(ctx, "test_dump.sql"); err != nil {
-		log.Printf("failed to create dump: %s", err.Error())
+		log.Fatalf("failed to create dump: %s", err.Error())
 	}
 
 	// OR use File to create files using following scheme <prefix>.dump_<current_date>.sql
 	dumpFile, err := spacer.NewDumpFile("dumps")
 	if err != nil {
-		log.Printf("failed to create dump file: %s", err.Error())
+		log.Fatalf("failed to create dump file: %s", err.Error())
 	}
-	fmt.Println(ioutil.ReadFile(dumpFile.Name()))
 	if err := postgres.Dump(ctx, dumpFile.Name()); err != nil {
-		log.Printf("failed to create dump: %s", err.Error())
+		log.Fatalf("failed to create dump: %s", err.Error())
 	}
 
 	// Now you can do anything you want
@@ -78,31 +77,31 @@ func Dump(dbConf *DataBaseConfig, s3conf *S3StorageConfig) {
 	}
 	encryptor, err := spacer.NewEncryptor([]byte(encryptKey))
 	if err != nil {
-		log.Printf("failed to create Encryptor: %s", err.Error())
+		log.Fatalf("failed to create Encryptor: %s", err.Error())
 	}
 
 	// encrypt file
 	fileData, err := ioutil.ReadAll(dumpFile.Reader())
 	if err != nil {
-		log.Printf("failed to read dump file: %s", err.Error())
+		log.Fatalf("failed to read dump file: %s", err.Error())
 	}
 
 	encrypted, err := encryptor.Encrypt(fileData)
 	if err != nil {
-		log.Printf("failed to encrypt: %s", err.Error())
+		log.Fatalf("failed to encrypt: %s", err.Error())
 	}
 
 	if err := dumpFile.Write(encrypted); err != nil {
-		log.Printf("failed to rewrite encrypted data to file: %s", err.Error())
+		log.Fatalf("failed to rewrite encrypted data to file: %s", err.Error())
 	}
 	// and save
 	storage := spacer.NewSpacesStorage(s3conf.Host, s3conf.Bucket, s3conf.AccessKey, s3conf.SecretKey)
 	if err != nil {
-		log.Printf("failed to create SpacesStorage: %s", err.Error())
+		log.Fatalf("failed to create SpacesStorage: %s", err.Error())
 	}
 	url, err := storage.Save(ctx, dumpFile)
 	if err != nil {
-		log.Printf("failed to save dump file: %s", err.Error())
+		log.Fatalf("failed to save dump file: %s", err.Error())
 	}
 	if err := os.Remove(dumpFile.Name()); err != nil {
 		log.Printf("failed to delete dump file: %s", err.Error())
