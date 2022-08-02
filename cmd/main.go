@@ -72,7 +72,7 @@ func Dump(dbConf *DataBaseConfig, s3conf *S3StorageConfig) {
 
 	// Now you can do anything you want
 	// For example, encrypt and save it to Object Storage
-	encryptor, err := spacer.NewEncryptor([]byte("gUkXp2s5v8y/B?E(H+MbQeShVmYq3t6w"))
+	encryptor, err := spacer.NewEncryptor([]byte(os.Getenv("ENCRYPT_KEY")))
 	if err != nil {
 		log.Fatalf("failed to create Encryptor: %s", err.Error())
 	}
