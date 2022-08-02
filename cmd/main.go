@@ -101,7 +101,9 @@ func Dump(dbConf *DataBaseConfig, s3conf *S3StorageConfig) {
 	if err != nil {
 		log.Fatalf("failed to save dump file: %s", err.Error())
 	}
-
+	if err := os.Remove(dumpFile.Name()); err != nil {
+		log.Fatalf("failed to delete dump file: %s", err.Error())
+	}
 	log.Println("Dump exported to", url)
 }
 func parseTime(timeStr string, sep string) int64 {
@@ -118,8 +120,9 @@ func parseExpiration(parseString string) time.Duration {
 		return time.Duration(parseTime(parseString, "h")) * time.Hour
 	} else if strings.Contains(parseString, "m") {
 		return time.Duration(parseTime(parseString, "m")) * time.Minute
+
 	} else {
-		return time.Second
+		return time.Second * 5
 	}
 }
 func getSleepTime() (time.Duration, error) {
@@ -148,8 +151,8 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	go func() {
 		for {
-			Dump(dbConf, s3Conf)
 			time.Sleep(sleepTime)
+			Dump(dbConf, s3Conf)
 		}
 	}()
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)

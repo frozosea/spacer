@@ -21,4 +21,4 @@ It depends on env variables:
 - DUMP_TIME
 - ENCRYPT_KEY
 
-`DUMP_TIME` is variable in format `4h` or `5s`. This variable is time to sleep and dump every `DUMP_TIME`.
+`DUMP_TIME` is variable in format `4h` or `5m`. This variable is time to sleep and dump database.
