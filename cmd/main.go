@@ -151,8 +151,8 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	go func() {
 		for {
-			time.Sleep(sleepTime)
 			Dump(dbConf, s3Conf)
+			time.Sleep(sleepTime)
 		}
 	}()
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
