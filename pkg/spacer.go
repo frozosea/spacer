@@ -13,7 +13,7 @@ type Dumper interface {
 
 // Saver is used to save/retrive dump file from remote object storage
 type Saver interface {
-	Save(ctx context.Context, file *DumpFile, folder string) (string, error)
+	Save(ctx context.Context, file *DumpFile) (string, error)
 }
 
 // Restorer is an interface describing DBMS client that restores DB from provided dump file
@@ -65,7 +65,7 @@ func (s *Spacer) Export(ctx context.Context, prefix, folder string) (string, err
 		return "", errors.WithMessage(err, "failed to encrypt file")
 	}
 
-	url, err := s.saver.Save(ctx, dumpFile, folder)
+	url, err := s.saver.Save(ctx, dumpFile)
 	if err != nil {
 		return "", errors.WithMessage(err, "failed to save")
 	}

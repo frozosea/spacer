@@ -32,7 +32,7 @@ func NewSpacesStorage(endpoint, bucket, accessKey, secretKey string) *Spaces {
 	return &Spaces{client: client, bucket: bucket, endpoint: endpoint, accessKey: accessKey, secretKey: secretKey}
 }
 
-func (f *Spaces) Save(ctx context.Context, file *DumpFile, folder string) (string, error) {
+func (f *Spaces) Save(ctx context.Context, file *DumpFile) (string, error) {
 	_, err := f.client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(f.bucket),
 		Key:    aws.String(file.Name()),
@@ -44,11 +44,11 @@ func (f *Spaces) Save(ctx context.Context, file *DumpFile, folder string) (strin
 
 func (f *Spaces) GetLatest(ctx context.Context, prefix, folder string) (*DumpFile, error) {
 	filePath := f.setFolderInPath(folder, prefix)
+	fmt.Println(filePath)
 	name, err := f.getLatestDumpName(ctx, filePath)
 	if err != nil {
 		return nil, err
 	}
-
 	url := f.generateFileURL(name)
 	fileData, err := f.fetch(url)
 	if err != nil {
@@ -63,20 +63,17 @@ func (f *Spaces) generateFileURL(filename string) string {
 
 }
 func (f *Spaces) parseObjects(prefix string) ([]s3types.Object, error) {
-	doneCh := make(chan struct{})
-	defer close(doneCh)
 	list, err := f.client.ListObjectsV2(context.Background(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(f.bucket),
-		Prefix: aws.String(prefix),
 	})
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	objects := make([]s3types.Object, 0)
 	for _, v := range list.Contents {
 		objects = append(objects, v)
 	}
-
 	if len(objects) == 0 {
 		return nil, errors.New("no files found")
 	}
@@ -96,7 +93,6 @@ func (f *Spaces) getLatestDumpName(ctx context.Context, prefix string) (string, 
 	if err != nil {
 		return "", err
 	}
-
 	latestObject := f.getLatestObject(objects)
 	return *latestObject.Key, nil
 }

@@ -61,18 +61,22 @@ func Dump(dbConf *DataBaseConfig, s3conf *S3StorageConfig) {
 	}
 
 	// OR use File to create files using following scheme <prefix>.dump_<current_date>.sql
-	dumpFile, err := spacer.NewDumpFile("local")
+	dumpFile, err := spacer.NewDumpFile("dumps")
 	if err != nil {
 		log.Printf("failed to create dump file: %s", err.Error())
 	}
-
+	fmt.Println(ioutil.ReadFile(dumpFile.Name()))
 	if err := postgres.Dump(ctx, dumpFile.Name()); err != nil {
 		log.Printf("failed to create dump: %s", err.Error())
 	}
 
 	// Now you can do anything you want
 	// For example, encrypt and save it to Object Storage
-	encryptor, err := spacer.NewEncryptor([]byte(os.Getenv("ENCRYPT_KEY")))
+	encryptKey := os.Getenv("ENCRYPT_KEY")
+	if encryptKey == "" {
+		log.Fatal("no encrypt key")
+	}
+	encryptor, err := spacer.NewEncryptor([]byte(encryptKey))
 	if err != nil {
 		log.Printf("failed to create Encryptor: %s", err.Error())
 	}
@@ -91,13 +95,12 @@ func Dump(dbConf *DataBaseConfig, s3conf *S3StorageConfig) {
 	if err := dumpFile.Write(encrypted); err != nil {
 		log.Printf("failed to rewrite encrypted data to file: %s", err.Error())
 	}
-
 	// and save
 	storage := spacer.NewSpacesStorage(s3conf.Host, s3conf.Bucket, s3conf.AccessKey, s3conf.SecretKey)
 	if err != nil {
 		log.Printf("failed to create SpacesStorage: %s", err.Error())
 	}
-	url, err := storage.Save(ctx, dumpFile, "dumps")
+	url, err := storage.Save(ctx, dumpFile)
 	if err != nil {
 		log.Printf("failed to save dump file: %s", err.Error())
 	}
