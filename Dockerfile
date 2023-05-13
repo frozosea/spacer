@@ -2,8 +2,8 @@ FROM golang:latest
 USER root
 RUN apt-get update \
       && apt-get install -y sudo \
-      && rm -rf /var/lib/apt/lists/* \
-      && apt install postgresql postgresql-contrib
+      && apt-get install apt-utils -y \
+      && apt-get install postgresql-client -y
 RUN mkdir app
 WORKDIR /app/
 COPY  cmd/ /app/
