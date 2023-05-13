@@ -3,7 +3,7 @@ USER root
 RUN apt-get update \
       && apt-get install -y sudo \
       && rm -rf /var/lib/apt/lists/* \
-      && apt-get install postgresql-client-common
+      && apt-get -y install postgresql-13
 RUN mkdir app
 WORKDIR /app/
 COPY  cmd/ /app/
