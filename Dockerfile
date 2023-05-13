@@ -3,6 +3,7 @@ USER root
 RUN apt-get update \
       && apt-get install -y sudo \
       && rm -rf /var/lib/apt/lists/* \
+      && apt-get install postgresql-client-common \
       && apt-get install postgresql-client
 RUN mkdir app
 WORKDIR /app/
