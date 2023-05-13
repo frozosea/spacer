@@ -1,9 +1,7 @@
 FROM golang:latest
-MAINTAINER User="i20072004@gmail.com"
-RUN mkdir /dumper
-WORKDIR /dumper/
+RUN mkdir app
+WORKDIR /app/
 COPY  cmd/ /app/
-ADD . go.mod /app/
+ADD . /app/
 RUN go build -o main
-EXPOSE ${GRPC_PORT}
 CMD ["/app/main"]
