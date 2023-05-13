@@ -39,7 +39,7 @@ func NewPostgres(host, port, username, password, name string) (*Postgres, error)
 func (p Postgres) Dump(ctx context.Context, filename string) error {
 	options := p.getDumpOptions(filename)
 	cmd := exec.CommandContext(ctx, pgDump, options...)
-
+	fmt.Println(options)
 	return cmd.Run()
 }
 
@@ -57,7 +57,7 @@ func (p Postgres) getDumpOptions(filename string) []string {
 func (p Postgres) Restore(ctx context.Context, filename string) error {
 	options := p.getRestoreOptions(filename)
 	cmd := exec.CommandContext(ctx, pgRestore, options...)
-
+	fmt.Println(options)
 	return cmd.Run()
 }
 
